@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: sans-serif;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chat-box {
+            width: 400px;
+            height: 500px;
+            background-color: #868686;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        #chat-input {
+            width: 350px;
+            height: 30px;
+            padding: 5px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box"></div><br>
+        <input type="text" id="chat-input" placeholder="Input message">
+    </div>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8080/ws");
+        console.log("Attempting WebSocket connection...");
+
+        socket.onopen = () => {
+            console.log("Success!");
+        };
+
+        socket.onclose = (event) => {
+            console.log("Connection closed");
+        };
+
+        socket.onmessage = (event) => {
+            const message = event.data;
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p>${message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        const chatInput = document.getElementById("chat-input");
+        chatInput.addEventListener("keypress", (event) => {
+            if (event.keyCode === 13) {
+                const message = event.target.value;
+                if (message != "") {
+                    socket.send(message);
+                    event.target.value = "";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
